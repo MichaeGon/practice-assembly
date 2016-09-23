@@ -1,10 +1,10 @@
 [org 0]
-[bits 16]
-    jmp 0x07C0:start    ; far jmp
+    jmp 07C0h:start
 
 start:
     mov ax, cs
     mov ds, ax
+    mov es, ax
 
     mov ax, 0xB800
     mov es, ax
@@ -18,35 +18,23 @@ paint:
     dec cx
     jnz paint
 
-    mov edi, 0
-    mov byte [es:edi], 'A'
-    inc edi
-    mov byte [es:edi], 0x06
-    inc edi
-    mov byte [es:edi], 'B'
-    inc edi
-    mov byte [es:edi], 0x06
-    inc edi
-    mov byte [es:edi], 'C'
-    inc edi
-    mov byte [es:edi], 0x06
-    inc edi
-    mov byte [es:edi], '1'
-    inc edi
-    mov byte [es:edi], 0x06
-    inc edi
-    mov byte [es:edi], '2'
-    inc edi
-    mov byte [es:edi], 0x06
-    inc edi
-    mov byte [es:edi], '3'
-    inc edi
-    mov byte [es:edi], 0x06
+read:
+    mov ax, 0x1000  ; es:bx=1000:0000
+    mov es, ax
+    mov bx, 0
+    mov ah, 2
+    mov al, 1
+    mov ch, 0
+    mov cl, 2
+    mov dh, 0
+    mov dl, 0
+    int 0x13
 
+    jc read
 
-    jmp $
+    jmp 0x1000:0000
 
-msgBack db  '.', 0xE7
+msgBack db '.', 0x67
 
 times   510-($-$$) db 0
-        dw 0xAA55
+        dw 0AA55h
