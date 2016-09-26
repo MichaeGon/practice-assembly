@@ -86,8 +86,8 @@ SysCodeSelector equ 0x08
     dw 0xFFFF
     dw 0x0000
     db 0x01
-    db 0x9A
-    db 0xCF
+    db 0x9A ; P:1, DPL:0, Code, non-conforming, readable
+    db 0xCF ; G:1, D:1, limit16-19:0xF 
     db 0x00
 
 SysDataSelector equ 0x10
