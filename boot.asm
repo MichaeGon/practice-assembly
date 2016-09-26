@@ -19,7 +19,7 @@ paint:
     jnz paint
 
 read:
-    mov ax, 0x1000  ; es:bx=1000:0000
+    mov ax, 0x1000 ;es:bx=1000:0000
     mov es, ax
     mov bx, 0
     mov ah, 2
@@ -36,5 +36,5 @@ read:
 
 msgBack db '.', 0x67
 
-times   510-($-$$) db 0
-        dw 0AA55h
+times 510-($-$$) db 0
+    dw 0AA55h 

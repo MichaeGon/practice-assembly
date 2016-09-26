@@ -2,7 +2,7 @@
 [bits 16]
 
 start:
-    mov ax, cs  ; cs=0x10000
+    mov ax, cs
     mov ds, ax
     xor ax, ax
     mov ss, ax
@@ -14,6 +14,7 @@ start:
     mov eax, cr0
     or eax, 0x00000001
     mov cr0, eax
+
     jmp $+2
     nop
     nop
@@ -23,6 +24,7 @@ start:
     db 0xEA
     dd PM_Start
     dw SysCodeSelector
+
 
 ; -- protected mode --
 
@@ -45,33 +47,32 @@ PM_Start:
 
     jmp $
 
-; sub routines
+
+; --
 
 printf:
     push eax
 
 printf_loop:
-    mov al, byte [esi]
-    mov byte [es:edi], al
     or al, al
     jz printf_end
+    mov al, byte [esi]
+    mov byte [es:edi], al
     inc edi
     mov byte [es:edi], 0x06
     inc esi
-    inc edi 
+    inc edi
     jmp printf_loop
 
 printf_end:
     pop eax
     ret
 
-msgPMode    db "We are in Protected Mode", 0
-
-; GDT table
+msgPMode db "We are in Protected Mode", 0
 
 gdtr:
-    dw gdt_end-gdt-1
-    dd gdt+0x10000
+    dw gdt_end - gdt - 1
+    dd gdt + 0x10000
 
 gdt:
     dw 0
@@ -85,8 +86,8 @@ SysCodeSelector equ 0x08
     dw 0xFFFF
     dw 0x0000
     db 0x01
-    db 0x9A
-    db 0xCF
+    db 0x9A ; P:1, DPL:0, Code, non-conforming, readable
+    db 0xCF ; G:1, D:1, limit16-19:0xF 
     db 0x00
 
 SysDataSelector equ 0x10
@@ -97,11 +98,10 @@ SysDataSelector equ 0x10
     db 0xCF
     db 0x00
 
-VideoSelector   equ 0x18
+VideoSelector equ 0x18
     dw 0xFFFF
-    dw 0x0000
+    dw 0x8000
     db 0x0B
-    db 0x92
     db 0x40
     db 0x00
 
