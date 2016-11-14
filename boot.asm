@@ -1,73 +1,42 @@
-%include "init.inc"
+[org 0x7c00]
+[bits 16]
 
-[org 0]
-    jmp 07C0h:start
-
+; dl == boot drive number here
 start:
     mov ax, cs
     mov ds, ax
     mov es, ax
 
-    mov ax, 0xB800
+    mov ax, 0xb800      ; color text video memory
     mov es, ax
     mov di, 0
-    mov ax, word [msgBack]
-    mov cx, 0x7FF
+    mov ax, word [msgBack]; ds:msgBack
+    mov cx, 0x7ff       ; display size
 
-paint:
+paint:                  ; paint background
     mov word [es:di], ax
     add di, 2
-    dec cx
-    jnz paint
+    dec cx              ; if result == 0 then zero flag = true
+    jnz paint           ; if zero flag != true then goto paint
 
-read:
+read:                   ; read kernel
     mov ax, 0x1000
     mov es, ax
-    mov bx, 0
+    mov bx, 0           ; es:bx == 0x1000:0000
 
-    mov ah, 2
-    mov al, 1
-    mov ch, 0
-    mov cl, 2
-    mov dh, 0
-    mov dl, 0
-    int 13h
+    mov ah, 2           ; write to es:bx
+    mov al, 1           ; number of sector to read
+    mov ch, 0           ; at ch-th cylinder
+    mov cl, 2           ; start read at cl-th sector
+    mov dh, 0           ; head
+    ;mov dl, 0           ; drive number
+    int 0x13
 
     jc read
 
-    cli
+    jmp 0x1000:0000     ; goto kernel
 
-    lgdt [gdtr]
+msgBack db '.', 0x67
 
-    mov eax, cr0
-    or eax, 0x00000001
-    mov cr0, eax
-
-    jmp $+2
-    nop
-    nop
-
-    mov bx, SysDataSelector
-    mov ds, bx
-    mov es, bx
-    mov fs, bx
-    mov gs, bx
-    mov ss, bx
-
-    jmp dword SysCodeSelector:0x10000
-
-    msgBack db '.', 0x67
-
-gdtr:
-    dw gdt_end - gdt - 1
-    dd gdt + 0x7C00
-
-gdt:
-    dd 0, 0
-    dd 0x0000FFFF, 0x00CF9A00
-    dd 0x0000FFFF, 0x00CF9200
-    dd 0x8000FFFF, 0x0040920B
-
-gdt_end:
-times 510-($-$$) db 0
-    dw 0AA55h
+times 510 - ($-$$) db 0
+dw 0xaa55               ; is MBR?
