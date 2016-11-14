@@ -2,13 +2,13 @@
 [bits 16]
 
 start:
-    mov ax, cs      ; cs == 0x1000
+    mov ax, cs
     mov ds, ax
     xor ax, ax
     mov ss, ax
 
     lea esi, [msgKernel]
-    mov ax, 0xb800  ; color text video memory
+    mov ax, 0xb800
     mov es, ax
     mov edi, 0
     call printf
