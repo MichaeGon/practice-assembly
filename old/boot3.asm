@@ -1,4 +1,5 @@
 %include "init.inc"
+
 [org 0x7c00]
 [bits 16]
 
@@ -34,13 +35,7 @@ read:
 
     jc read
 
-    mov dx, 0x3f2
-    xor al, al
-    out dx, al
-
     cli
-    mov al, 0xff
-    out 0xa1, al
 
     lgdt [gdtr]
 
@@ -69,10 +64,10 @@ gdtr:
     dd gdt
 
 gdt:
-    dd 0, 0
-    dd 0x0000ffff, 0x00cf9a00
-    dd 0x0000ffff, 0x00cf9200
-    dd 0x8000ffff, 0x0040920b
+    dd 0, 0                     ; null
+    dd 0x0000ffff, 0x00cf9a00   ; code
+    dd 0x0000ffff, 0x00cf9200   ; data
+    dd 0x8000ffff, 0x0040920b   ; video
 
 gdt_end:
 
