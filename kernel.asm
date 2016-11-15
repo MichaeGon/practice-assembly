@@ -7,9 +7,7 @@ start:
     cld
     mov ax, cs
     mov ds, ax
-    mov es, ax
-    mov fs, ax
-    mov gs, ax
+    xor ax, ax
     mov ss, ax
 
     xor ebx, ebx
@@ -103,7 +101,7 @@ gdtr:
     dd gdt
 
 gdt:
-    dw 0, 0
+    dd 0, 0
     dd 0x0000ffff, 0x00cf9a00
     dd 0x0000ffff, 0x00cf9200
     dd 0x8000ffff, 0x0040920b
@@ -127,24 +125,24 @@ descriptor5:
 gdt_end:
 
 tss1:
-    dw 0, 0
-    dd 0
-    dw 0, 0
-    dd 0
-    dw 0, 0
-    dd 0
-    dw 0, 0
-    dd 0, 0, 0
-    dd 0, 0, 0, 0
-    dd 0, 0, 0, 0
-    dw 0, 0
-    dw 0, 0
-    dw 0, 0
-    dw 0, 0
-    dw 0, 0
-    dw 0, 0
-    dw 0, 0
-    dw 0, 0
+    dw 0, 0         ; link to previous task
+    dd 0            ; esp0
+    dw 0, 0         ; ss0
+    dd 0            ; esp1
+    dw 0, 0         ; ss1
+    dd 0            ; esp2
+    dw 0, 0         ; ss2
+    dd 0, 0, 0      ; cr3, eip, eflags
+    dd 0, 0, 0, 0   ; eax, ecx, edx, ebx
+    dd 0, 0, 0, 0   ; esp, ebp, esi, edi
+    dw 0, 0         ; es
+    dw 0, 0         ; cs
+    dw 0, 0         ; ss
+    dw 0, 0         ; ds
+    dw 0, 0         ; fs
+    dw 0, 0         ; gs
+    dw 0, 0         ; ldt
+    dw 0, 0         ; t, I/O 
 
 tss2:
     dw 0, 0
@@ -164,7 +162,6 @@ tss2_esp:
     dd 0, 0, 0, 0
     dw SysDataSelector, 0
     dw SysCodeSelector, 0
-    dw SysDataSelector, 0
     dw SysDataSelector, 0
     dw SysDataSelector, 0
     dw SysDataSelector, 0
