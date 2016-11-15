@@ -31,32 +31,22 @@ loop_idt:
     dec ax
     jnz loop_idt
 
-    ; zero dev exception
-    mov edi, 0
-    lea esi, [idt_zero_devide]
-    mov cx, 8
-    rep movsb
-
-    mov edi, (8*0x20)
+    mov edi, 8*0x20
     lea esi, [idt_timer]
     mov cx, 8
     rep movsb
 
-    mov edi, (8*0x21)
+    ; keyboard
+    mov edi, 8*0x21
     lea esi, [idt_keyboard]
     mov cx, 8
     rep movsb
 
     lidt [idtr]
 
-    mov al, 0xfc
+    mov al, 0xfc            ; enable timer, keyboard
     out 0x21, al
     sti
-
-    mov edx, 0
-    mov eax, 0x100
-    mov ebx, 0
-    div ebx         ; zero devide
 
     jmp $
 
@@ -71,8 +61,8 @@ printf_loop:
     mov byte [es:edi], al
     inc edi
     mov byte [es:edi], 0x06
-    inc edi
     inc esi
+    inc edi
     or al, al
     jz printf_end
     jmp printf_loop
@@ -83,10 +73,9 @@ printf_end:
     ret
 
 msgPMode db "We are in Protected Mode", 0
-msg_isr_ignore db "This is an ignorable interruput", 0
-msg_isr_zero_devide db "Zero Devide Exception", 0
-msg_isr_32_timer db ".This is the timer interruput", 0
-msg_isr_33_keyboard db ".Tis is the keyboard interruput", 0
+msg_isr_ignore db "This is an ignorable interrupt", 0
+msg_isr_32_timer db ".This is the timer interrupt", 0
+msg_isr_33_keyboard db ".This is the keyboard interrupt", 0
 
 idtr:
     dw 256*8-1
@@ -118,35 +107,7 @@ isr_ignore:
 
     iret
 
-isr_zero_devide:
-    push gs
-    push fs
-    push es
-    push ds
-    pushad
-    pushfd
-
-    mov al, 0x20
-    out 0x20, al
-
-    mov ax, VideoSelector
-    mov es, ax
-    mov edi, (80*6*2)
-    lea esi, [msg_isr_zero_devide]
-    call printf
-
-    jmp $
-
-    popfd
-    popad
-    pop ds
-    pop es
-    pop fs
-    pop gs
-
-    iret
-
-isr_32_timer:
+isr_32_tiemr:
     push gs
     push fs
     push es
@@ -181,14 +142,14 @@ isr_33_keyboard:
     pushad
     pushfd
 
-    in al, 0x60
+    in al, 0x60                     ; read key
 
-    mov al, 0x20
+    mov al, 0x20                    ; reset PIC
     out 0x20, al
 
     mov ax, VideoSelector
     mov es, ax
-    mov edi, (80*7*2)
+    mov edi, (80*4*2)
     lea esi, [msg_isr_33_keyboard]
     call printf
     inc byte [msg_isr_33_keyboard]
@@ -209,15 +170,8 @@ idt_ignore:
     db 0x8e
     dw 0x0001
 
-idt_zero_devide:
-    dw isr_zero_devide
-    dw SysCodeSelector
-    db 0
-    db 0x8e
-    dw 0x0001
-
 idt_timer:
-    dw isr_32_timer
+    dw isr_32_tiemr
     dw SysCodeSelector
     db 0
     db 0x8e
@@ -230,4 +184,4 @@ idt_keyboard:
     db 0x8e
     dw 0x0001
 
-times 1024 - ($ - $$) db 0
+times 512 - ($ - $$) db 0

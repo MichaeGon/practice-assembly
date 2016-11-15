@@ -27,36 +27,22 @@ PM_Start:
 loop_idt:
     lea esi, [idt_ignore]
     mov cx, 8
-    rep movsb
+    rep movsb               ; src ds:esi, dst es:edi, cx byte
     dec ax
     jnz loop_idt
 
-    ; zero dev exception
-    mov edi, 0
-    lea esi, [idt_zero_devide]
-    mov cx, 8
-    rep movsb
-
-    mov edi, (8*0x20)
+    ; timer
+    mov edi, 8*0x20         ; (IRQ0 + 0x20) * 8byte
     lea esi, [idt_timer]
-    mov cx, 8
-    rep movsb
-
-    mov edi, (8*0x21)
-    lea esi, [idt_keyboard]
     mov cx, 8
     rep movsb
 
     lidt [idtr]
 
-    mov al, 0xfc
+    mov al, 0xfe            ; enable timer interrupt
     out 0x21, al
-    sti
 
-    mov edx, 0
-    mov eax, 0x100
-    mov ebx, 0
-    div ebx         ; zero devide
+    sti                     ; enable
 
     jmp $
 
@@ -83,10 +69,8 @@ printf_end:
     ret
 
 msgPMode db "We are in Protected Mode", 0
-msg_isr_ignore db "This is an ignorable interruput", 0
-msg_isr_zero_devide db "Zero Devide Exception", 0
-msg_isr_32_timer db ".This is the timer interruput", 0
-msg_isr_33_keyboard db ".Tis is the keyboard interruput", 0
+msg_isr_ignore db "This is an ignorable interrupt", 0
+msg_isr_32_timer db ".This is the timer interrupt", 0
 
 idtr:
     dw 256*8-1
@@ -118,35 +102,7 @@ isr_ignore:
 
     iret
 
-isr_zero_devide:
-    push gs
-    push fs
-    push es
-    push ds
-    pushad
-    pushfd
-
-    mov al, 0x20
-    out 0x20, al
-
-    mov ax, VideoSelector
-    mov es, ax
-    mov edi, (80*6*2)
-    lea esi, [msg_isr_zero_devide]
-    call printf
-
-    jmp $
-
-    popfd
-    popad
-    pop ds
-    pop es
-    pop fs
-    pop gs
-
-    iret
-
-isr_32_timer:
+isr_32_tiemr:
     push gs
     push fs
     push es
@@ -173,61 +129,18 @@ isr_32_timer:
 
     iret
 
-isr_33_keyboard:
-    push gs
-    push fs
-    push es
-    push ds
-    pushad
-    pushfd
-
-    in al, 0x60
-
-    mov al, 0x20
-    out 0x20, al
-
-    mov ax, VideoSelector
-    mov es, ax
-    mov edi, (80*7*2)
-    lea esi, [msg_isr_33_keyboard]
-    call printf
-    inc byte [msg_isr_33_keyboard]
-
-    popfd
-    popad
-    pop ds
-    pop es
-    pop fs
-    pop gs
-
-    iret
-
 idt_ignore:
     dw isr_ignore
-    dw SysCodeSelector
-    db 0
-    db 0x8e
-    dw 0x0001
-
-idt_zero_devide:
-    dw isr_zero_devide
-    dw SysCodeSelector
+    dw 0x08
     db 0
     db 0x8e
     dw 0x0001
 
 idt_timer:
-    dw isr_32_timer
-    dw SysCodeSelector
+    dw isr_32_tiemr
+    dw 0x08
     db 0
     db 0x8e
     dw 0x0001
 
-idt_keyboard:
-    dw isr_33_keyboard
-    dw SysCodeSelector
-    db 0
-    db 0x8e
-    dw 0x0001
-
-times 1024 - ($ - $$) db 0
+times 510 - ($ - $$) db 0
