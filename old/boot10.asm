@@ -26,7 +26,7 @@ read:
     mov bx, 0
 
     mov ah, 2
-    mov al, 9   ; read 9 sectors
+    mov al, 2
     mov ch, 0
     mov cl, 2
     mov dh, 0
@@ -49,14 +49,12 @@ read:
     mov al, 0x20
     out 0x21, al
     dw 0x00eb, 0x00eb
-    mov al, 0x28
     out 0xa1, al
     dw 0x00eb, 0x00eb
 
     mov al, 0x04
     out 0x21, al
     dw 0x00eb, 0x00eb
-    mov al, 0x02
     out 0xa1, al
     dw 0x00eb, 0x00eb
 
