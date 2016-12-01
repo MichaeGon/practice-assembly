@@ -26,7 +26,7 @@ read:
     mov bx, 0
 
     mov ah, 2
-    mov al, 9   ; read 9 sectors
+    mov al, 9
     mov ch, 0
     mov cl, 2
     mov dh, 0

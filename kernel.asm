@@ -7,7 +7,7 @@ start:
     cld
     mov ax, cs
     mov ds, ax
-    xor ax, ax
+    mov es, ax
     mov ss, ax
 
     xor eax, eax
@@ -39,6 +39,9 @@ start:
 
     jmp dword SysCodeSelector:PM_Start
 
+[bits 32]
+    times 80 dd 0 ; for stack
+
 PM_Start:
     mov bx, SysDataSelector
     mov ds, bx
@@ -64,18 +67,17 @@ loop_idt:
     dec ax
     jnz loop_idt
 
-    mov edi, 8*0x20
+    mov edi, 8 * 0x20 ; timer
     lea esi, [idt_timer]
     mov cx, 8
     rep movsb
 
-    mov edi, 8*0x21
+    mov edi, 8 * 0x21  ; keyboard
     lea esi, [idt_keyboard]
     mov cx, 8
     rep movsb
 
-    ; trap idt
-    mov edi, 8*0x80
+    mov edi, 8 * 0x80 ; trap
     lea esi, [idt_soft_int]
     mov cx, 8
     rep movsb
@@ -121,8 +123,7 @@ scheduler:
     mov edi, [eax]
 
     mov ecx, 17
-
-    rep movsd
+    rep movsb
     add esp, 68
 
     add dword [CurrentTask], 4
@@ -148,12 +149,11 @@ sched:
     pop es
     pop fs
     pop gs
-
     iret
 
 CurrentTask dd 0
 NumTask dd 20
-TaskList: times 5 dd 0
+TaskList times 5 dd 0
 
 printf:
     push eax
@@ -166,8 +166,8 @@ printf_loop:
     mov byte [es:edi], al
     inc edi
     mov byte [es:edi], 0x06
-    inc edi
     inc esi
+    inc edi
     or al, al
     jz printf_end
     jmp printf_loop
@@ -178,68 +178,68 @@ printf_end:
     ret
 
 user_process1:
-    mov eax, 80*2*2+2*5
+    mov eax, 80 * 2 * 2 + 2 * 5
     lea ebx, [msg_user_process1_1]
     int 0x80
-    mov eax, 80*2*3+2*5
+    mov eax, 80 * 2 * 3 + 2 * 5
     lea ebx, [msg_user_process1_2]
     int 0x80
     inc byte [msg_user_process1_2]
     jmp user_process1
 
-msg_user_process1_1 db "User Process 1", 0
+msg_user_process1_1 db "User Process1", 0
 msg_user_process1_2 db ".I am running now.", 0
 
 user_process2:
-    mov eax, 80*2*2+2*35
+    mov eax, 80 * 2 * 2 + 2 * 35
     lea ebx, [msg_user_process2_1]
     int 0x80
-    mov eax, 80*2*3+2*35
+    mov eax, 80 * 2 * 3 + 2 * 35
     lea ebx, [msg_user_process2_2]
     int 0x80
     inc byte [msg_user_process2_2]
     jmp user_process2
 
-msg_user_process2_1 db "User Process 2", 0
+msg_user_process2_1 db "User Process2", 0
 msg_user_process2_2 db ".I am running now.", 0
 
 user_process3:
-    mov eax, 80*2*5+2*5
+    mov eax, 80 * 2 * 5 + 2 * 5
     lea ebx, [msg_user_process3_1]
     int 0x80
-    mov eax, 80*2*6+2*5
+    mov eax, 80 * 2 * 6 + 2 * 5
     lea ebx, [msg_user_process3_2]
     int 0x80
     inc byte [msg_user_process3_2]
     jmp user_process3
 
-msg_user_process3_1 db "User Process 3", 0
+msg_user_process3_1 db "User Process3", 0
 msg_user_process3_2 db ".I am running now.", 0
 
 user_process4:
-    mov eax, 80*2*5+2*35
+    mov eax, 80 * 2 * 5 + 2 * 35
     lea ebx, [msg_user_process4_1]
     int 0x80
-    mov eax, 80*2*6+2*35
+    mov eax, 80 * 2 * 6 + 2 * 35
     lea ebx, [msg_user_process4_2]
     int 0x80
     inc byte [msg_user_process4_2]
     jmp user_process4
 
-msg_user_process4_1 db "User Process 4", 0
+msg_user_process4_1 db "User Process4", 0
 msg_user_process4_2 db ".I am running now.", 0
 
 user_process5:
-    mov eax, 80*2*9+2*5
+    mov eax, 80 * 2 * 9 + 2 * 5
     lea ebx, [msg_user_process5_1]
     int 0x80
-    mov eax, 80*2*10+2*5
+    mov eax, 80 * 2 * 10 + 2 * 5
     lea ebx, [msg_user_process5_2]
     int 0x80
     inc byte [msg_user_process5_2]
     jmp user_process5
 
-msg_user_process5_1 db "User Process 5", 0
+msg_user_process5_1 db "User Process5", 0
 msg_user_process5_2 db ".I am running now.", 0
 
 gdtr:
@@ -275,7 +275,6 @@ gdt_end:
 
 tss:
     dw 0, 0
-
 tss_esp0:
     dd 0
     dw SysDataSelector, 0
@@ -284,11 +283,9 @@ tss_esp0:
     dd 0
     dw 0, 0
     dd 0
-
 tss_eip:
     dd 0, 0
     dd 0, 0, 0, 0
-
 tss_esp:
     dd 0, 0, 0, 0
     dw 0, 0
@@ -300,8 +297,7 @@ tss_esp:
     dw 0, 0
     dw 0, 0
 
-times 63 dd 0
-
+    times 63 dd 0 ; for user stack
 User1Stack:
 User1regs:
     dd 0, 0, 0, 0, 0, 0, 0, 0
@@ -316,8 +312,7 @@ User1regs:
     dd User1Stack
     dw UserDataSelector, 0
 
-times 63 dd 0
-
+    times 63 dd 0 ; for user stack
 User2Stack:
 User2regs:
     dd 0, 0, 0, 0, 0, 0, 0, 0
@@ -332,8 +327,7 @@ User2regs:
     dd User2Stack
     dw UserDataSelector, 0
 
-times 63 dd 0
-
+    times 63 dd 0 ; for user stack
 User3Stack:
 User3regs:
     dd 0, 0, 0, 0, 0, 0, 0, 0
@@ -348,8 +342,7 @@ User3regs:
     dd User3Stack
     dw UserDataSelector, 0
 
-times 63 dd 0
-
+    times 63 dd 0 ; for user stack
 User4Stack:
 User4regs:
     dd 0, 0, 0, 0, 0, 0, 0, 0
@@ -364,8 +357,7 @@ User4regs:
     dd User4Stack
     dw UserDataSelector, 0
 
-times 63 dd 0
-
+    times 63 dd 0 ; for user stack
 User5Stack:
 User5regs:
     dd 0, 0, 0, 0, 0, 0, 0, 0
@@ -381,7 +373,7 @@ User5regs:
     dw UserDataSelector, 0
 
 idtr:
-    dw 256*8-1
+    dw 256 * 8 - 1
     dd 0
 
 isr_ignore:
@@ -400,7 +392,7 @@ isr_ignore:
     mov al, 0x20
     out 0x20, al
 
-    mov edi, (80*2*0)
+    mov edi, 80 * 2 * 0
     lea esi, [msg_isr_ignore]
     call printf
     inc byte [msg_isr_ignore]
@@ -423,7 +415,7 @@ isr_32_timer:
     mov al, 0x20
     out 0x20, al
 
-    mov edi, (80*2*0)
+    mov edi, 80 * 2 * 0
     lea esi, [msg_isr_32_timer]
     call printf
     inc byte [msg_isr_32_timer]
@@ -448,7 +440,7 @@ isr_33_keyboard:
     mov al, 0x20
     out 0x20, al
 
-    mov edi, (80*2*0) + (2*35)
+    mov edi, 80 * 2 * 0 + 2 * 35
     lea esi, [msg_isr_33_keyboard]
     call printf
     inc byte [msg_isr_33_keyboard]
@@ -509,20 +501,20 @@ idt_timer:
     dw 0x08
     db 0
     db 0x8e
-    db 0x0001
+    dw 0x0001
 
 idt_keyboard:
     dw isr_33_keyboard
     dw 0x08
     db 0
     db 0x8e
-    db 0x0001
+    dw 0x0001
 
 idt_soft_int:
     dw isr_128_soft_int
     dw 0x08
     db 0
     db 0xef
-    db 0x0001
+    dw 0x0001
 
 times 4608 - ($ - $$) db 0
