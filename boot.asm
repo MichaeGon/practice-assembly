@@ -6,6 +6,7 @@
     jmp 0x07c0:start
 
 %include "a20.inc"
+%include "cpuid.inc"
 
 start:
     mov ax, cs
@@ -13,7 +14,6 @@ start:
 
     mov ax, 0xb800
     mov es, ax
-
     mov edi, 0x00
     lea esi, [msgRealMode]
     call print
@@ -33,24 +33,10 @@ read_setup:
 
     jc read_setup
 
-; read kernel
-read_kernel:
-    mov ax, 0x8000 ; es:bx == 0x8000:0x0000
-    mov es, ax
-    mov bx, 0
-
-    mov ah, 2
-    mov al, NumKernelSector
-    mov ch, 0
-    mov cl, 4 ; from 4th sector
-    mov dh, 0
-    int 0x13
-
-    jc read_kernel
-
     cli
 
     call a20_try_loop ; a20 on
+    call check_cpuid ; cpuid on
 
     ; iwc1
     mov al, 0x11 ; init pic
