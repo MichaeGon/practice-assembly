@@ -1,3 +1,5 @@
+%include "init.inc"
+
 [org 0]
 [bits 16]
 
@@ -12,12 +14,12 @@ start:
     mov ax, 0xb800
     mov es, ax
 
-    mov edi, 0xa0
+    mov edi, 0x00
     lea esi, [msgRealMode]
-    call printf
+    call print
 
 ; read setup.asm
-read:
+read_setup:
     mov ax, 0x9000 ;es:bx == 0x9000:0x0000
     mov es, ax
     mov bx, 0
@@ -29,7 +31,22 @@ read:
     mov dh, 0
     int 0x13
 
-    jc read
+    jc read_setup
+
+; read kernel
+read_kernel:
+    mov ax, 0x8000 ; es:bx == 0x8000:0x0000
+    mov es, ax
+    mov bx, 0
+
+    mov ah, 2
+    mov al, NumKernelSector
+    mov ch, 0
+    mov cl, 4 ; from 4th sector
+    mov dh, 0
+    int 0x13
+
+    jc read_kernel
 
     cli
 
@@ -73,26 +90,7 @@ read:
 
     jmp 0x9000:0x0000 ; jump to setup.asm
 
-
-printf:
-    push eax
-
-printf_loop:
-    mov al, [esi]
-    or al, al
-    jz printf_end
-
-    mov byte [es:edi], al
-    inc esi
-    inc edi
-    mov byte [es:edi], 0x06
-    inc edi
-
-    jmp printf_loop
-
-printf_end:
-    pop eax
-    ret
+%include "print.inc"
 
 msgRealMode db "Real Mode", 0
 
