@@ -2,3 +2,5 @@
 *.img
 *.txt
 *.sh
+Makefile
+*.o

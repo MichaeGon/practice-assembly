@@ -1,7 +1,10 @@
 %include "init.inc"
 
-[org 0]
-[bits 16]
+global start
+section .text
+
+;[org 0]
+bits 16
 
     jmp 0x07c0:start
 
