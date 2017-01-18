@@ -1,7 +1,7 @@
 %include "init.inc"
 
 global start
-section .text
+section .boot
 
 ;[org 0]
 bits 16
