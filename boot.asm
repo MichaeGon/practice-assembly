@@ -3,9 +3,13 @@
 
     jmp 0x07c0:start
 
+%include "a20.inc"
+
 start:
     mov ax, cs
     mov ds, ax
+
+    call a20_try_loop
 
     mov ax, 0xb800
     mov es, ax
