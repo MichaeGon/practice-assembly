@@ -1,15 +1,8 @@
 %include "init.inc"
 
-global start
-section .boot
-
-;[org 0]
-bits 16
+[bits 16]
 
     jmp 0x07c0:start
-
-%include "a20.inc"
-%include "cpuid.inc"
 
 start:
     mov ax, cs
@@ -20,7 +13,7 @@ start:
     mov edi, 0x00
     lea esi, [msgRealMode]
     call print
-
+    
 ; read setup.asm
 read_setup:
     mov ax, 0x9000 ;es:bx == 0x9000:0x0000
@@ -80,6 +73,8 @@ read_setup:
     jmp 0x9000:0x0000 ; jump to setup.asm
 
 %include "print.inc"
+%include "a20.inc"
+%include "cpuid.inc"
 
 msgRealMode db "Real Mode", 0
 

@@ -125,4 +125,4 @@ empty_8042_end_loop:
 
 delay:
     out 0x80, al
-    ret 
+    ret

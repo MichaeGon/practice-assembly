@@ -5,9 +5,7 @@ P3_Table equ 0x101000
 P2_Table equ 0x102000
 P1_Table equ 0x103000
 
-section .text
-;[org 0x90000]
-;[bits 16]
+[org 0x90000]
 bits 16
 
 start:
@@ -33,7 +31,6 @@ start:
 
     jmp dword SysCodeSelector:PM_Start
 
-;[bits 32]
 bits 32
 
 PM_Start:
@@ -119,7 +116,6 @@ gdt64:
     dq (1 << 43) | (1 << 44) | (1 << 47) | (1 << 53)
 gdt64_end:
 
-;[bits 64]
 bits 64
 
 LM_Start:
