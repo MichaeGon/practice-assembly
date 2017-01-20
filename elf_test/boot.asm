@@ -14,7 +14,7 @@ read_setup:
     mov bx, 0
 
     mov ah, 2
-    mov al, NumSetupSector ; read NumSetupSector sectors
+    mov al, NumSetupSector + NumKernelSector ; read NumSetupSector sectors
     mov ch, 0
     mov cl, 2 ; from 2nd sector
     mov dh, 0
@@ -31,7 +31,6 @@ read_setup:
 
 %include "a20.inc"
 %include "long.inc"
-%include "print.inc"
 
     times 510 - ($ - $$) db 0
     db 0x55

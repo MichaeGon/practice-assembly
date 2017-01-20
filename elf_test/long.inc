@@ -16,7 +16,7 @@ check_long_mode:
     popfd ; copy old flags
 
     cmp eax, ecx ; check cpuid
-    je no_cpuid
+    je no_long
 
     mov eax, 0x80000000
     cpuid
@@ -29,21 +29,12 @@ check_long_mode:
     jz no_long
     ret
 
-no_cpuid:
-    mov ax, 0xb800
-    mov es, ax
-    mov edi, 0x00
-    lea esi, [msgNoCPUID]
-    call print
-    hlt
-
 no_long:
-    mov ax, 0xb800
-    mov es, ax
-    mov edi, 0
-    lea esi, [msgNoLong]
-    call print
+;    mov ax, 0xb800
+;    mov es, ax
+;    mov edi, 0
+;    lea esi, [msgNoLong]
+;    call print
     hlt
 
-msgNoCPUID db "no CPUID", 0
-msgNoLong db "No long mode", 0
+;msgNoLong db "No long mode", 0

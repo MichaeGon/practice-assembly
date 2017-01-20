@@ -101,8 +101,8 @@ start64:
     mov gs, ax
     mov ss, ax
 
-    mov byte [0xb8000], 'A'
-    mov byte [0xb8001], 0xf6
+    ; jump to kernel
+    jmp 0x90000 + 512 * NumSetupSector
 
     hlt
 
