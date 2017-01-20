@@ -10,27 +10,22 @@ RLIB=./target/$(ARC)/debug/libelf_test.a
 
 .PHONY: clean
 
-boot.img: boot.bin kernel.bin
+boot.img: boot.bin
 	dd if=/dev/zero of=$@ bs=512 count=100
 	dd if=$< of=$@ conv=notrunc
-	dd if=kernel.bin of=$@ seek=3 conv=notrunc
 
-boot.bin: boot.asm setup.asm
+boot.bin: boot.asm setup.asm long_entry_asm.asm rust
 	$(AS) -f bin -o $@ $<
 	$(AS) -f bin -o setup.bin setup.asm
-	cat setup.bin >> $@
-
-kernel.bin: entry.o rust
-	$(LD) -n -o kernel.o -Ttext 0x90064 -e start $< $(RLIB)
-	$(OBJCOPY) -S -O binary -j .text kernel.o $@
+	$(AS) -f elf64 -o long_entry_asm.o long_entry_asm.asm
+	$(LD) -n -o long_entry.o -Ttext 0x90064 -e start long_entry_asm.o $(RLIB)
+	$(OBJCOPY) -S -O binary -j .text long_entry.o long_entry.bin
+	cat setup.bin long_entry.bin >> $@
 
 rust:
 	cargo build --target $(ARC)
 
-entry.o: entry.asm
-	$(AS) -f elf64 -o $@ $<
-
-
 clean:
 	rm *.bin
 	rm *.img
+	rm *.o
