@@ -30,11 +30,7 @@ check_long_mode:
     ret
 
 no_long:
-;    mov ax, 0xb800
-;    mov es, ax
-;    mov edi, 0
-;    lea esi, [msgNoLong]
-;    call print
-    hlt
+    lea esi, [msgNoLong]
+    jmp error
 
-;msgNoLong db "No long mode", 0
+msgNoLong db "Long", 0

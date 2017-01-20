@@ -18,7 +18,7 @@ boot.bin: boot.asm setup.asm long_entry_asm.asm rust
 	$(AS) -f bin -o $@ $<
 	$(AS) -f bin -o setup.bin setup.asm
 	$(AS) -f elf64 -o long_entry_asm.o long_entry_asm.asm
-	$(LD) -n -o long_entry.o -Ttext 0x90064 -e start long_entry_asm.o $(RLIB)
+	$(LD) -n --gc-sections -o long_entry.o -T linker.ld long_entry_asm.o $(RLIB)
 	$(OBJCOPY) -S -O binary -j .text long_entry.o long_entry.bin
 	cat setup.bin long_entry.bin >> $@
 

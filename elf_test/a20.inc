@@ -65,7 +65,8 @@ a20_fast_wait_loop:
     jnz a20_try_loop
 
 a20_die:
-    hlt
+    lea esi, [msgNoA20]
+    jmp error
     jmp a20_die
 
 a20_tries:
@@ -126,3 +127,5 @@ empty_8042_end_loop:
 delay:
     out 0x80, al
     ret
+
+msgNoA20 db "A20", 0

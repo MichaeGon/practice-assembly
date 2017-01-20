@@ -4,4 +4,4 @@ PDT   equ 0x3000
 PT    equ 0x4000
 
 NumSetupSector equ 2
-NumKernelSector equ 1
+NumEntrySector equ 2

@@ -100,7 +100,7 @@ start64:
     mov fs, ax
     mov gs, ax
     mov ss, ax
-
+    
     ; jump to kernel
     jmp 0x90000 + 512 * NumSetupSector
 

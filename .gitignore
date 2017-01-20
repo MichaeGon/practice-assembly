@@ -3,3 +3,5 @@
 *.txt
 *.sh
 *.o
+elf_test/target
+*.lock
