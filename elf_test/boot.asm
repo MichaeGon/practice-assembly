@@ -38,6 +38,8 @@ error:
     mov ax, 0xb800
     mov es, ax
     mov di, 0
+
+error_loop:
     mov al, byte [esi]
     or al, al
     jz die
@@ -47,7 +49,7 @@ error:
     inc esi
     mov byte [es:di], 0xf6
     inc di
-    jmp error
+    jmp error_loop
 
 die:
     jmp $
