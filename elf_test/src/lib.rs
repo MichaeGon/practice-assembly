@@ -5,9 +5,23 @@ extern crate rlibc;
 
 #[no_mangle]
 pub extern fn rust_main() {
-    let x = ["hello", "world"];
-    let y = x;
-    let test = (0..3).flat_map(|x| 0..x).zip(0..);
+
+    let msg = [b'H', b'e', b'l', b'l', b'o', b' ', b'f', b'r', b'o', b'm', b' ', b'R', b'u', b's', b't'];
+    //let msg = b"Hello from Rust";
+    let color = 0x06u8;
+
+    let mut buf = [color; 30];
+    for (i, &x) in msg.into_iter().enumerate() {
+        buf[i * 2] = x;
+    }
+
+    let ptr = 0xb8000 as *mut _;
+
+    unsafe {
+        *ptr = buf
+    };
+
+    loop {}
 }
 
 #[lang = "eh_personality"]
