@@ -8,7 +8,9 @@ BINUTILSDIR=$(HOME)/Documents/binutils/$(TARGET)/bin
 ARC=x86_64-unknown-linux-gnu
 RLIB=./target/$(ARC)/debug/libelf_test.a
 
-.PHONY: clean
+QEMU=qemu-system-x86_64
+
+.PHONY: clean emulate
 
 boot.img: boot.bin
 	dd if=/dev/zero of=$@ bs=512 count=100
@@ -29,7 +31,12 @@ long_entry.bin: long_entry_asm.asm rust
 rust:
 	cargo build --target $(ARC)
 
+
+emulate: boot.img
+	$(QEMU) $< -monitor stdio -k ja
+
 clean:
+	cargo clean
 	rm *.bin
 	rm *.img
 	rm *.o

@@ -59,7 +59,7 @@ edit n = readFile dst >>= edit'
         replace n = unwords . foldr ff [] . words
             where
                 ff xxs@(x : _) acc
-                    | isDigit x && read xxs < n = show n : acc
+                    | isDigit x = show n : acc
                     | otherwise = xxs : acc
                 ff x acc = x : acc
 
