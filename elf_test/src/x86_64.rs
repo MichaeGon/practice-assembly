@@ -71,7 +71,6 @@ pub fn outsd(port: u32, addr: u64, count: u32) {
 }
 
 #[cfg(any(target_arch = "x86_64"))]
-#[allow(dead_code)]
 pub fn stosb(addr: u64, data: u32, count: u32) {
     let mut count = count;
     unsafe {
