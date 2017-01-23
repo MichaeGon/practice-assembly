@@ -19,14 +19,27 @@ pub extern fn rust_main() {
     let ptr = 0x10000;
     read_seg(ptr, 0x1000, 0); // first page of disk
 
-    let mut elf = ELF64Header::new(ptr);
+    let elf = ELF64Header::new(ptr);
     if !elf.is_elf() {
         return;
     }
 
     // load program
-    
+    let mut i = 0;
+    while let Some(ph) = elf.progheader(i) {
+        read_seg(ph.address, ph.file_size() as u32, ph.offset() as u32);
 
+        if ph.memory_size() > ph.file_size() {
+            stosb(ph.address + ph.file_size(), 0, (ph.memory_size() - ph.file_size()) as u32);
+        }
+
+        i += 1;
+    }
+
+    // call kernel
+    elf.exec_from_entry();
+
+    /*
     let msg = [b'H', b'e', b'l', b'l', b'o', b' ', b'f', b'o', b'm', b' ', b'R', b'u', b's', b't'];
     let color = 0xf6;
 
@@ -41,6 +54,8 @@ pub extern fn rust_main() {
     }
 
     loop {}
+    */
+
 }
 
 // wait disk

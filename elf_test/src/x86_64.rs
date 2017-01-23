@@ -43,3 +43,43 @@ pub fn outb(port: u16, data: u8) {
         );
     }
 }
+
+#[cfg(any(target_arch = "x86_64"))]
+//#[allow(dead_code)]
+pub fn outw(port: u16, data: u16) {
+    unsafe {
+        asm!("out $1, $0"
+            :
+            : "{ax}"(data), "{dx}"(port)
+            :
+            : "intel", "volatile"
+        );
+    }
+}
+
+#[cfg(any(target_arch = "x86_64"))]
+pub fn outsd(port: u32, addr: u64, count: u32) {
+    let mut count = count;
+    unsafe {
+        asm!("cld; rep outsd"
+            : "={esi}"(addr as *mut u8), "={ecx}"(count)
+            : "{edx}"(port), "0"(addr as *mut u8), "1"(count)
+            : "cc"
+            : "intel", "volatile"
+        );
+    }
+}
+
+#[cfg(any(target_arch = "x86_64"))]
+#[allow(dead_code)]
+pub fn stosb(addr: u64, data: u32, count: u32) {
+    let mut count = count;
+    unsafe {
+        asm!("cld; rep stosb"
+            : "={edi}"(addr as *mut u8), "={ecx}"(count)
+            : "0"(addr as *mut u8), "1"(count), "{eax}"(data)
+            : "memory", "cc"
+            : "intel", "volatile"
+        );
+    }
+}

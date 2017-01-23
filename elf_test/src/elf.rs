@@ -1,5 +1,6 @@
 
 const ELF_MAGIC: u32 = 0x464c457f; // ELF\x7f
+//const PN_XNUM: u16 = 0xffff;
 
 /*
 ELF64 header for Rust
@@ -26,7 +27,35 @@ impl ELF64Header {
         res
     }
 
-    // iter?
+    pub fn progheader(&self, nth: u64) -> Option<ELF64ProgHeader> {
+        let res;
+        unsafe {
+            let phoff = (*self.ptr).e_phoff as u64;
+            let phnum = (*self.ptr).e_phnum as u64;
+
+            res = if phoff == 0 || nth >= phnum {
+                None
+            }
+            else {
+                Some(ELF64ProgHeader::new(self.address + phoff + nth * phnum))
+            };
+        }
+
+        res
+    }
+
+    pub fn exec_from_entry(&self) {
+        unsafe {
+            let entry = (*self.ptr).e_entry;
+
+            asm!("call $0"
+                :
+                : "r"(entry)
+                :
+                : "intel", "volatile"
+            );
+        }
+    }
 }
 
 /*
@@ -65,6 +94,33 @@ impl ELF64ProgHeader {
             address: address,
             ptr: address as *mut _,
         }
+    }
+
+    pub fn file_size(&self) -> u64 {
+        let res;
+        unsafe {
+            res = (*self.ptr).p_filesz;
+        }
+
+        res
+    }
+
+    pub fn memory_size(&self) -> u64 {
+        let res;
+        unsafe {
+            res = (*self.ptr).p_memsz;
+        }
+
+        res
+    }
+
+    pub fn offset(&self) -> u64 {
+        let res;
+        unsafe {
+            res = (*self.ptr).p_offset;
+        }
+
+        res
     }
 }
 
