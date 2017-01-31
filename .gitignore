@@ -3,6 +3,6 @@
 *.txt
 *.sh
 *.o
-elf_test/target
+elf64/target
 *.lock
 boot/target
