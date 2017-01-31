@@ -6,3 +6,4 @@
 elf64/target
 *.lock
 boot/target
+boot/build
