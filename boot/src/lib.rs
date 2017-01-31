@@ -17,7 +17,16 @@ pub extern fn boot_main() {
         *ptr = buf;
     }
 
-    loop {}
+    loop {
+        unsafe {
+            asm!("hlt"
+                :
+                :
+                :
+                : "intel", "volatile"
+            );
+        }
+    }
 }
 
 #[lang = "eh_personality"]
