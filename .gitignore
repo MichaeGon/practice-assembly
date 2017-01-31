@@ -5,3 +5,4 @@
 *.o
 elf_test/target
 *.lock
+boot/target

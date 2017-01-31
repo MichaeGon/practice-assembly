@@ -1,0 +1,15 @@
+[package]
+name = "boot"
+version = "0.1.0"
+authors = ["MichaeGon"]
+
+[profile.dev]
+panic = "abort"
+
+[profile.release]
+panic = "abort"
+
+[lib]
+crate-type = ["staticlib"]
+
+[dependencies]
