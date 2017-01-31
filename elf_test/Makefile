@@ -24,7 +24,7 @@ boot.bin: boot.asm setup.asm long_entry.bin
 long_entry.bin: long_entry_asm.asm rust
 	$(AS) -f elf64 -o long_entry_asm.o $<
 	$(LD) -n --gc-sections -o long_entry.o -T linker.ld long_entry_asm.o $(RLIB)
-	$(OBJCOPY) -S -O binary -j .text long_entry.o $@
+	$(OBJCOPY) -S -O binary -j .text -j .rodata long_entry.o $@
 	chmod 755 edit_length.hs
 	./edit_length.hs
 

@@ -5,4 +5,8 @@ SECTIONS {
     {
         *(.text*)
     }
+    .rodata :
+    {
+        *(.rodata*)
+    }
 }
