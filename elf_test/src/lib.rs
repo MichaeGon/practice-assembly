@@ -14,23 +14,7 @@ const SECT_SIZE: u64 = 512;
 const KERNEL_SECTOR: u64 = 1;
 
 #[no_mangle]
-pub extern fn rust_main() {
-
-    //let msg = [b'H', b'e', b'l', b'l', b'o', b' ', b'f', b'o', b'm', b' ', b'R', b'u', b's', b't'];
-    let msg = b"Hello from Rust";
-    let color = 0xf6;
-
-    let mut buf = [color; 30];
-    for (i, &x) in msg.into_iter().enumerate() {
-        buf[i * 2] = x;
-    }
-
-    let ptr = 0xb8000 as *mut _;
-    unsafe {
-        *ptr = buf;
-    }
-
-    loop {}
+pub extern fn boot_main() {
 
     let ptr = 0x10000;
     read_seg(ptr, 0x1000, 0); // first page of disk
